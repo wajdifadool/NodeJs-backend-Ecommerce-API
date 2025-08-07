@@ -1,0 +1,37 @@
+{
+  "name": "ecoomerce",
+  "version": "1.0.0",
+  "description": "Simple backend project setup with Express, MongoDB, and basic middleware.",
+  "main": "server.js",
+  "scripts": {
+    "test": "jest",
+    "dev": "nodemon server",
+    "start": "node server.js"
+  },
+  "jest": {
+    "setupFilesAfterEnv": [
+      "<rootDir>/tests/setup.js"
+    ],
+    "testEnvironment": "node"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "express-fileupload": "^1.5.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.17.0",
+    "morgan": "^1.10.1",
+    "slugify": "^1.6.6"
+  },
+  "devDependencies": {
+    "colors": "^1.4.0",
+    "jest": "^30.0.5",
+    "mongodb-memory-server": "^10.2.0",
+    "nodemon": "^3.1.10",
+    "supertest": "^7.1.4"
+  }
+}
