@@ -6,14 +6,14 @@ const User = require('../models/User')
 // @route   POST /api/v1/auth/register
 // @access  Public
 exports.registerUser = asyncHandler(async (req, res, next) => {
-  const { name, email, password } = req.body
+  const { name, email, password, role } = req.body
 
   let user = await User.findOne({ email })
   if (user) {
     return next(new ErrorResponse('Email already registered', 409))
   }
 
-  user = await User.create({ name, email, password })
+  user = await User.create({ name, email, role, password })
   sendTokenResponse(user, 201, res)
 })
 

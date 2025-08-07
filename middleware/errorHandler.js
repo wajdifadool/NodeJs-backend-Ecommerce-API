@@ -1,6 +1,7 @@
 const ErrorResponse = require('../utils/errorResponse')
 
 const errorHandler = (err, req, res, next) => {
+  console.log('errorHandler() called \n\n\n/n/n/n')
   let error = { ...err }
   error.message = err.message
   console.log(err.message)
@@ -11,7 +12,7 @@ const errorHandler = (err, req, res, next) => {
 
   if (err.code === 11000) {
     const message = 'Duplicate field value entered'
-    error = new ErrorResponse(message, 400)
+    error = new ErrorResponse(message, 409)
   }
 
   if (err.name === 'ValidationError') {

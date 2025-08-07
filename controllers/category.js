@@ -4,6 +4,17 @@ const Product = require('../models/Product')
 const ErrorResponse = require('../utils/errorResponse')
 
 exports.createCategory = asyncHandler(async (req, res, next) => {
+  // TODO: make this middleware
+  const { name, description } = req.body
+
+  const existingCategory = await Category.findOne({ name })
+  if (existingCategory) {
+    return res.status(409).json({
+      success: false,
+      error: 'Category with this name already exists',
+    })
+  }
+
   const category = await Category.create(req.body)
   //   console.log('creating category')
   res.status(201).json({ success: true, data: category })
