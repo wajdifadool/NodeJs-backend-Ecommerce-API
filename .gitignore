@@ -1,5 +1,5 @@
 node_modules
-config/config.env
-db.js
+
 readme.txt
 Database.txt
+config/config.env
