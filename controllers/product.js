@@ -1,11 +1,9 @@
 const asyncHandler = require('../middleware/async')
 const Product = require('../models/Product')
 const ErrorResponse = require('../utils/errorResponse')
-
+const mongoose = require('mongoose')
+const Category = require('../models/Category')
 exports.createProduct = asyncHandler(async (req, res, next) => {
-  //   req.body.owner = req.user.id
-  console.log('Hit /api/v1/product POST route')
-
   const product = await Product.create(req.body)
   res.status(201).json({ success: true, data: product })
 })
@@ -14,15 +12,28 @@ exports.createProduct = asyncHandler(async (req, res, next) => {
 // @route   Get /api/v1/products
 // @acsess  Public
 exports.getProducts = asyncHandler(async (req, res, next) => {
-  let { category, page = 1, limit = 10 } = req.query
+  let { categoryId, page = 1, limit = 10 } = req.query
   let my_query = {}
+
+  // if (categoryId)
+  //   {
+  //   const products = await Product.find({
+  //     categoryId: categoryId,
+  //   })
+
+  //   return res.status(200).json({
+  //     success: true,
+  //     count: products.length,
+  //     data: products,
+  //   })
+  // }
 
   page = parseInt(page)
   limit = parseInt(limit)
 
   // Add category to query if it exists
-  if (category) {
-    my_query.category = category
+  if (categoryId) {
+    my_query.categoryId = new mongoose.Types.ObjectId(`${categoryId}`)
   }
 
   //   TODO: page and limit must be >0
