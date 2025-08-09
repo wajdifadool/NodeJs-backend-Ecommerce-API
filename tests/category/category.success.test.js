@@ -44,11 +44,6 @@ describe('Category API - Success Scenarios', () => {
   })
 
   it('should get all categories', async () => {
-    // await Category.insertMany([
-    //   { name: 'Category 1', description: 'Desc 1' },
-    //   { name: 'Category 2', description: 'Desc 2' },
-    // ])
-
     await Category.create({
       name: 'Category 1 ',
       description: 'Description here',
