@@ -10,6 +10,7 @@ const errorHandler = require('./middleware/error')
 // Routes
 const authRoutes = require('./routes/auth')
 const categoryRoutes = require('./routes/category')
+const cartRoute = require('./routes/cart')
 
 dotenv.config({ path: './config/config.env' })
 
@@ -22,6 +23,7 @@ app.use(morgan('dev'))
 
 app.use('/api/v1/auth', authRoutes)
 app.use('/api/v1/category', categoryRoutes)
+app.use('/api/v1/carts', cartRoute)
 
 app.use(errorHandler)
 

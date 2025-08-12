@@ -11,6 +11,7 @@ const sampleRoutes = require('./routes/sample')
 const authRoutes = require('./routes/auth')
 const productRoute = require('./routes/product')
 const categoryRoute = require('./routes/category')
+const cartRoute = require('./routes/cart')
 
 dotenv.config({ path: './config/config.env' })
 connectDB()
@@ -26,9 +27,10 @@ app.use('/api/v1/sample', sampleRoutes)
 app.use('/api/v1/auth', authRoutes)
 // Products Route
 app.use('/api/v1/products', productRoute)
-
 // Category Route
 app.use('/api/v1/category', categoryRoute)
+// Cart Route
+app.use('/api/v1/carts', cartRoute)
 
 app.use(errorHandler)
 

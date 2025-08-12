@@ -4,7 +4,6 @@ const errorHandler = (err, req, res, next) => {
   console.log('errorHandler() called \n\n\n/n/n/n')
   let error = { ...err }
   error.message = err.message
-  console.log(err.message)
 
   if (err.name === 'CastError') {
     error = new ErrorResponse(`Resource not found with id of ${err.value}`, 404)
@@ -19,6 +18,8 @@ const errorHandler = (err, req, res, next) => {
     const message = Object.values(err.errors).map((val) => val.message)
     error = new ErrorResponse(message, 400)
   }
+
+  console.log(error.message)
 
   res.status(error.statusCode || 500).json({
     success: false,

@@ -1,3 +1,7 @@
+/*
+next() just calls the next middleware.
+return next() stops execution of the current function after calling the next middleware.
+*/
 const jwt = require('jsonwebtoken')
 const asyncHandler = require('./async')
 const ErrorResponse = require('../utils/errorResponse')
@@ -21,7 +25,8 @@ exports.protect = asyncHandler(async (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
     req.user = await User.findById(decoded.id)
-    next()
+
+    return next()
   } catch (err) {
     console.log(err)
     return next(new ErrorResponse('Not authorized', 401))

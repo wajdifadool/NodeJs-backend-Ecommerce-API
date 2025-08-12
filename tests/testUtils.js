@@ -15,3 +15,22 @@ exports.registerAndLogin = async (email, password = 'pass1234') => {
   })
   return login.body.token
 }
+
+exports.registerAndGetUser = async (email, password = 'pass1234') => {
+  const login = await request(app).post('/api/v1/auth/register').send({
+    name: 'User Test',
+    email,
+    password,
+  })
+
+  const token = login.body.token
+  const user = await request(app)
+    .post('/api/v1/auth/me')
+    .set('Authorization', `Bearer ${token}`)
+    .send({
+      email,
+      password,
+    })
+
+  return { user, token }
+}
