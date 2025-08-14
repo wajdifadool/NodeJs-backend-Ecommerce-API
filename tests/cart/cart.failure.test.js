@@ -1,21 +1,11 @@
 const request = require('supertest')
 const app = require('../../app')
 const Cart = require('../../models/Cart')
+
 const { registerAndGetUser } = require('../testUtils')
 
 describe('Cart API - Failure Scenarios', () => {
   const cart_end_point = '/api/v1/carts'
-  let user1, token1, user2, token2
-
-  beforeAll(async () => {
-    // Register two users
-    const u1 = await registerAndGetUser('user1@example.com')
-    const u2 = await registerAndGetUser('user2@example.com')
-    user1 = u1.user
-    token1 = u1.token
-    user2 = u2.user
-    token2 = u2.token
-  })
 
   afterEach(async () => {
     await Cart.deleteMany()
@@ -23,80 +13,145 @@ describe('Cart API - Failure Scenarios', () => {
 
   // --- CREATE ---
   it('should not allow creating a second cart for same user', async () => {
+    const { user, token } = await registerAndGetUser('user@example.com')
+
     const body = {
-      user: user1,
-      items: [{ productId: '689727fab67af12096060d34', quantity: 2 }],
+      user: user,
+      items: [
+        {
+          productId: '689727fab67af12096060d34',
+          quantity: 2,
+        },
+      ],
     }
-
-    // Create cart once
-    await request(app)
-      .post(cart_end_point)
-      .set('Authorization', `Bearer ${token1}`)
-      .send(body)
-
-    // Try to create again
     const res = await request(app)
-      .post(cart_end_point)
-      .set('Authorization', `Bearer ${token1}`)
+      .post(`${cart_end_point}`)
+      .set('Authorization', `Bearer ${token}`)
       .send(body)
 
-    expect(res.statusCode).toBe(400)
-    expect(res.body.message).toMatch(/Cart already exists/i)
+    expect(res.statusCode).toBe(201)
+    expect(res.body.success).toBe(true)
+    expect(res.body.data).toHaveProperty('_id')
+
+    const res2 = await request(app)
+      .post(`${cart_end_point}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send(body)
+
+    expect(res2.statusCode).toBe(400)
+    expect(res2.body.success).toBe(false)
+    expect(res2.body.message).toMatch(/Cart already exists/i)
   })
 
   it('should not allow creating a cart without items', async () => {
-    const res = await request(app)
-      .post(cart_end_point)
-      .set('Authorization', `Bearer ${token1}`)
-      .send({ user: user1 })
+    const { user, token } = await registerAndGetUser('user@example.com')
 
-    expect(res.statusCode).toBe(500) // or 422 if you validate schema
+    const body = {
+      user: user,
+    }
+    const res = await request(app)
+      .post(`${cart_end_point}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send(body)
+
+    expect(res.statusCode).toBe(400)
+    expect(res.body.success).toBe(false)
   })
 
   it('should not allow creating a cart without auth token', async () => {
-    const res = await request(app)
-      .post(cart_end_point)
-      .send({
-        items: [{ productId: '689727fab67af12096060d34', quantity: 2 }],
-      })
+    const { user, token } = await registerAndGetUser('user@example.com')
+
+    const body = {
+      user: user,
+      items: [
+        {
+          productId: '689727fab67af12096060d34',
+          quantity: 2,
+        },
+      ],
+    }
+    const res = await request(app).post(`${cart_end_point}`).send(body)
 
     expect(res.statusCode).toBe(401)
+    expect(res.body.success).toBe(false)
   })
 
-  // --- GET ---
-  //   it("should not allow unauthorized user to access another user's cart", async () => {
-  //     const cart = await Cart.create({
-  //       userId: user1._id,
-  //       user: user1,
-  //       items: [{ productId: '689727fab67af12096060d34', quantity: 1 }],
-  //     })
+  // // --- GET ---
+  it("should not allow unauthorized user to access another user's cart", async () => {
+    const { user, token } = await registerAndGetUser('user@example.com')
 
-  //     const res = await request(app)
-  //       .get(`${cart_end_point}/${cart._id}`)
-  //       .set('Authorization', `Bearer ${token2}`)
+    const body = {
+      user: user,
+      items: [
+        {
+          productId: '689727fab67af12096060d34',
+          quantity: 2,
+        },
+      ],
+    }
+    const res = await request(app)
+      .post(`${cart_end_point}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send(body)
 
-  //     expect(res.statusCode).toBe(403)
-  //     expect(res.body.message).toMatch(/Not authorized/i)
-  //   })
+    expect(res.statusCode).toBe(201)
+    expect(res.body.success).toBe(true)
+    expect(res.body.data).toHaveProperty('_id')
 
-  //   it('should return 404 for non-existing cart', async () => {
-  //     const nonExistingId = '64f733adf30b3e5c4a5a8888' // valid ObjectId, not in DB
+    const res1_id = res.body.data._id
+    console.log(`res 1 id = ${res1_id}`)
 
-  //     const res = await request(app)
-  //       .get(`${cart_end_point}/${nonExistingId}`)
-  //       .set('Authorization', `Bearer ${token1}`)
+    // Create the second User
 
-  //     expect(res.statusCode).toBe(404)
-  //     expect(res.body.message).toMatch(/not found/i)
-  //   })
+    const { user: user2, token: token2 } = await registerAndGetUser(
+      'user2@example.com'
+    )
 
-  //   it('should return 400 for invalid cartId format', async () => {
-  //     const res = await request(app)
-  //       .get(`${cart_end_point}/invalid-id`)
-  //       .set('Authorization', `Bearer ${token1}`)
+    const body_user_2 = {
+      user: user2,
+      items: [
+        {
+          productId: '689727fab67af12096060d34',
+          quantity: 20,
+        },
+      ],
+    }
 
-  //     expect(res.statusCode).toBe(400)
-  //   })
+    const res_user_2 = await request(app)
+      .get(`${cart_end_point}/${res1_id}`)
+      .set('Authorization', `Bearer ${token2}`)
+      .send(body_user_2)
+
+    console.log(res_user_2.body)
+    expect(res_user_2.statusCode).toBe(403)
+    expect(res_user_2.body.success).toBe(false)
+    expect(res_user_2.body.error).toMatch(/Not authorized to access this Cart/i)
+  })
+
+  it('should return 404 for non-existing cart', async () => {
+    const nonExistingCartId = '64f733adf30b3e5c4a5a8888' // valid ObjectId, not in DB
+
+    const { user, token } = await registerAndGetUser('user@example.com')
+
+    const body = {
+      user: user,
+      items: [
+        {
+          productId: '689727fab67af12096060d34',
+          quantity: 2,
+        },
+      ],
+    }
+
+    const res = await request(app)
+      .get(`${cart_end_point}/${nonExistingCartId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send(body)
+
+    console.log(res.body)
+    expect(res.statusCode).toBe(404)
+    expect(res.body.error).toMatch(/not found/i)
+  })
 
   //   // --- UPDATE ---
   //   it('should not allow unauthorized update', async () => {
