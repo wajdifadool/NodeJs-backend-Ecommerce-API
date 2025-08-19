@@ -3,6 +3,7 @@ const app = require('../../app') // your Express app, NOT server.js
 
 const Cart = require('../../models/Cart')
 const { registerAndGetUser } = require('../testUtils')
+const Product = require('../../models/Product')
 
 describe('Cart API - Success Scenarios', () => {
   const cart_end_point = '/api/v1/carts'
@@ -19,6 +20,7 @@ describe('Cart API - Success Scenarios', () => {
       items: [
         {
           productId: '689727fab67af12096060d34',
+          price: 10,
           quantity: 2,
         },
       ],

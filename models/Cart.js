@@ -17,14 +17,13 @@ const cartSchema = new mongoose.Schema(
             ref: 'Product',
             required: true,
           },
+
           quantity: { type: Number, required: true, min: 1 },
+          price: { type: Number, required: true },
         },
       ],
       required: true,
-      validate: [
-        (array) => array.length > 0,
-        'Cart must have at least one item.',
-      ],
+      validate: [(array) => array.length > 0, 'Cart must have at least one item.'],
     },
   },
   { timestamps: true }

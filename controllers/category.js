@@ -1,18 +1,16 @@
 const asyncHandler = require('../middleware/async')
 const Category = require('../models/Category')
-const Product = require('../models/Product')
 const ErrorResponse = require('../utils/errorResponse')
 
+// @desc    Create New Category
+// @route   POST /api/v1/category
+// @acsess  Private
 exports.createCategory = asyncHandler(async (req, res, next) => {
-  // TODO: make this middleware
   const { name, description } = req.body
 
   const existingCategory = await Category.findOne({ name })
   if (existingCategory) {
-    return res.status(409).json({
-      success: false,
-      error: 'Category with this name already exists',
-    })
+    return next(new ErrorResponse(`Category ${name} already exists`, 409))
   }
 
   const category = await Category.create(req.body)
@@ -20,60 +18,39 @@ exports.createCategory = asyncHandler(async (req, res, next) => {
   res.status(201).json({ success: true, data: category })
 })
 
+// @desc    Get category
+// @route   POST /api/v1/category/:categoryId
+// @acsess  Public
 exports.getCategory = asyncHandler(async (req, res, next) => {
-  const { categoryId } = req.params
-  const category = await Category.findById(categoryId)
-  if (!category) {
-    return res
-      .status(404)
-      .json({ success: false, message: 'Category not found' })
-  }
-
-  res.status(200).json({ success: true, data: category })
+  res.status(200).json({ success: true, data: req.category })
 })
 
+// @desc    Get all categories
+// @route   POST /api/v1/category
+// @acsess  Public
 exports.getAllCategories = asyncHandler(async (req, res, next) => {
   const categories = await Category.find().sort({ createdAt: -1 })
 
-  res
-    .status(200)
-    .json({ success: true, count: categories.length, data: categories })
+  res.status(200).json({ success: true, count: categories.length, data: categories })
 })
 
+// @desc    Update category
+// @route   PUT /api/v1/category/:categoryId
+// @acsess  Private
 exports.updateCategory = asyncHandler(async (req, res, next) => {
-  const { categoryId } = req.params
-
-  const category = await Category.findById(categoryId)
-
-  if (!category) {
-    return res.status(404).json({
-      success: false,
-      message: 'Category not found',
-    })
-  }
-
   // Update only allowed fields (e.g., name and description)
-  if (req.body.name) category.name = req.body.name
-  if (req.body.description) category.description = req.body.description
+  if (req.body.name) req.category.name = req.body.name
+  if (req.body.description) req.category.description = req.body.description
 
-  const updatedCategory = await category.save() // Triggers slug regeneration
+  await req.category.save({ runValidators: true })
 
-  res.status(200).json({ success: true, data: updatedCategory })
+  res.status(200).json({ success: true, data: req.category })
 })
 
+// @desc    Delete category
+// @route   DELETE /api/v1/category/:categoryId
+// @acsess  Private
 exports.deleteCategory = asyncHandler(async (req, res, next) => {
-  const { categoryId } = req.params
-
-  const deletedCategory = await Category.findById(categoryId)
-
-  if (!deletedCategory) {
-    return res
-      .status(404)
-      .json({ success: false, message: 'Category not found' })
-  }
-  await deletedCategory.deleteOne()
-
-  res
-    .status(200)
-    .json({ success: true, message: 'Category deleted successfully' })
+  await req.category.deleteOne()
+  res.status(200).json({ success: true, message: 'Category deleted' })
 })

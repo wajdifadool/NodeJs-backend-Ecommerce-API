@@ -5,7 +5,8 @@ const dotenv = require('dotenv')
 const morgan = require('morgan')
 const cookieParser = require('cookie-parser')
 const fileUpload = require('express-fileupload')
-const errorHandler = require('./middleware/error')
+// const errorHandler = require('./middleware/error')
+const errorHandler = require('./middleware/errorHandler')
 
 // Routes
 const authRoutes = require('./routes/auth')

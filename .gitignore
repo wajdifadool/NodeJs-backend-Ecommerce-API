@@ -3,3 +3,4 @@ node_modules
 readme.txt
 Database.txt
 config/config.env
+.prettierrc

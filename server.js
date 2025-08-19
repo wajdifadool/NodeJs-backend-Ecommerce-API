@@ -7,11 +7,12 @@ const connectDB = require('./config/db')
 const errorHandler = require('./middleware/errorHandler')
 
 // Routes
-const sampleRoutes = require('./routes/sample')
+
 const authRoutes = require('./routes/auth')
 const productRoute = require('./routes/product')
 const categoryRoute = require('./routes/category')
 const cartRoute = require('./routes/cart')
+const orderRoute = require('./routes/order')
 
 dotenv.config({ path: './config/config.env' })
 connectDB()
@@ -21,7 +22,6 @@ app.use(express.json())
 app.use(cookieParser())
 app.use(fileUpload())
 app.use(morgan('dev'))
-app.use('/api/v1/sample', sampleRoutes)
 
 // Authintication Routes :
 app.use('/api/v1/auth', authRoutes)
@@ -31,10 +31,13 @@ app.use('/api/v1/products', productRoute)
 app.use('/api/v1/category', categoryRoute)
 // Cart Route
 app.use('/api/v1/carts', cartRoute)
+app.use('/api/v1/orders', orderRoute)
 
 app.use(errorHandler)
 
 const PORT = process.env.PORT || 5000
 app.listen(PORT, () => {
-  console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`)
+  console.log(
+    `Server running in ${process.env.NODE_ENV} mode on port ${PORT} `.bgMagenta
+  )
 })

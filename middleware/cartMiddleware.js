@@ -1,9 +1,8 @@
 const ErrorResponse = require('../utils/errorResponse')
-const asyncHandler = require('../middleware/async')
+const asyncHandler = require('./async')
 const Cart = require('../models/Cart')
 
 exports.loadCart = asyncHandler(async (req, res, next) => {
-  // console.log('middleware loadCart ran')
   const { cartId } = req.params
 
   const cart = await Cart.findById(cartId)
