@@ -29,6 +29,8 @@ const UserSchema = new mongoose.Schema(
 
 // 🔐 Encrypt password before save
 UserSchema.pre('save', async function (next) {
+  /* make sure it runs only when save is modifed/provided , in otherwords it runs only when th user login/register/updatepassword*/
+
   if (!this.isModified('password')) return next()
   const salt = await bcrypt.genSalt(10)
   this.password = await bcrypt.hash(this.password, salt)

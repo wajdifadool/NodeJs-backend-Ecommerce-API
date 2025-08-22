@@ -2,7 +2,7 @@ const request = require('supertest')
 const app = require('../../app')
 const Cart = require('../../models/Cart')
 
-const { registerAndGetUser } = require('../testUtils')
+const { registerAndGetUser, createProduct } = require('../testUtils')
 
 describe('Cart API - Failure Scenarios', () => {
   const cart_end_point = '/api/v1/carts'
@@ -13,30 +13,25 @@ describe('Cart API - Failure Scenarios', () => {
 
   // --- CREATE ---
   it('should not allow creating a second cart for same user', async () => {
+    const product = await createProduct()
     const { user, token } = await registerAndGetUser('user@example.com')
 
     const body = {
       user: user,
       items: [
         {
-          productId: '689727fab67af12096060d34',
+          productId: product._id,
           quantity: 2,
         },
       ],
     }
-    const res = await request(app)
-      .post(`${cart_end_point}`)
-      .set('Authorization', `Bearer ${token}`)
-      .send(body)
+    const res = await request(app).post(`${cart_end_point}`).set('Authorization', `Bearer ${token}`).send(body)
 
     expect(res.statusCode).toBe(201)
     expect(res.body.success).toBe(true)
     expect(res.body.data).toHaveProperty('_id')
 
-    const res2 = await request(app)
-      .post(`${cart_end_point}`)
-      .set('Authorization', `Bearer ${token}`)
-      .send(body)
+    const res2 = await request(app).post(`${cart_end_point}`).set('Authorization', `Bearer ${token}`).send(body)
 
     expect(res2.statusCode).toBe(400)
     expect(res2.body.success).toBe(false)
@@ -49,10 +44,7 @@ describe('Cart API - Failure Scenarios', () => {
     const body = {
       user: user,
     }
-    const res = await request(app)
-      .post(`${cart_end_point}`)
-      .set('Authorization', `Bearer ${token}`)
-      .send(body)
+    const res = await request(app).post(`${cart_end_point}`).set('Authorization', `Bearer ${token}`).send(body)
 
     expect(res.statusCode).toBe(400)
     expect(res.body.success).toBe(false)
@@ -89,10 +81,7 @@ describe('Cart API - Failure Scenarios', () => {
         },
       ],
     }
-    const res = await request(app)
-      .post(`${cart_end_point}`)
-      .set('Authorization', `Bearer ${token}`)
-      .send(body)
+    const res = await request(app).post(`${cart_end_point}`).set('Authorization', `Bearer ${token}`).send(body)
 
     expect(res.statusCode).toBe(201)
     expect(res.body.success).toBe(true)
@@ -103,9 +92,7 @@ describe('Cart API - Failure Scenarios', () => {
 
     // Create the second User
 
-    const { user: user2, token: token2 } = await registerAndGetUser(
-      'user2@example.com'
-    )
+    const { user: user2, token: token2 } = await registerAndGetUser('user2@example.com')
 
     const body_user_2 = {
       user: user2,
@@ -117,10 +104,7 @@ describe('Cart API - Failure Scenarios', () => {
       ],
     }
 
-    const res_user_2 = await request(app)
-      .get(`${cart_end_point}/${res1_id}`)
-      .set('Authorization', `Bearer ${token2}`)
-      .send(body_user_2)
+    const res_user_2 = await request(app).get(`${cart_end_point}/${res1_id}`).set('Authorization', `Bearer ${token2}`).send(body_user_2)
 
     console.log(res_user_2.body)
     expect(res_user_2.statusCode).toBe(403)
@@ -143,10 +127,7 @@ describe('Cart API - Failure Scenarios', () => {
       ],
     }
 
-    const res = await request(app)
-      .get(`${cart_end_point}/${nonExistingCartId}`)
-      .set('Authorization', `Bearer ${token}`)
-      .send(body)
+    const res = await request(app).get(`${cart_end_point}/${nonExistingCartId}`).set('Authorization', `Bearer ${token}`).send(body)
 
     console.log(res.body)
     expect(res.statusCode).toBe(404)

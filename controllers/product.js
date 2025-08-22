@@ -3,6 +3,7 @@ const Product = require('../models/Product')
 const ErrorResponse = require('../utils/errorResponse')
 const mongoose = require('mongoose')
 const Category = require('../models/Category')
+
 exports.createProduct = asyncHandler(async (req, res, next) => {
   const product = await Product.create(req.body)
   res.status(201).json({ success: true, data: product })
